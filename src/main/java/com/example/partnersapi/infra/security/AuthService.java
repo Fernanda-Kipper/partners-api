@@ -1,4 +1,4 @@
-package com.example.partnersapi.services;
+package com.example.partnersapi.infra.security;
 
 import com.example.partnersapi.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
