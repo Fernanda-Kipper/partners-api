@@ -4,5 +4,6 @@ CREATE TABLE partner (
     ownerName TEXT NOT NULL,
     document TEXT NOT NULL UNIQUE,
     coordinateX FLOAT NOT NULL,
-    coordinateY FLOAT NOT NULL
+    coordinateY FLOAT NOT NULL,
+    coverageArea geometry(MultiPolygon)
 );
