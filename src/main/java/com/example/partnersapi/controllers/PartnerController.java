@@ -5,6 +5,7 @@ import com.example.partnersapi.domain.partner.PartnerRequestDTO;
 import com.example.partnersapi.repositories.PartnerRepository;
 import com.example.partnersapi.domain.area.Polygon;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("partner")
@@ -41,7 +43,10 @@ public class PartnerController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Partner> getById(@PathVariable String id){
-        Partner partner = this.repository.getReferenceById(id);
+        Optional<Partner> foundedPartner = this.repository.findById(id);
+        if(foundedPartner.isEmpty()) throw new EntityNotFoundException();
+
+        Partner partner = foundedPartner.get();
 
         return ResponseEntity.ok().body(partner);
     }
