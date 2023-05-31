@@ -1,12 +1,9 @@
 package com.example.partnersapi.controllers;
 
-import com.example.partnersapi.domain.user.AutenticationRequestDTO;
-import com.example.partnersapi.domain.user.RegisterRequestDTO;
-import com.example.partnersapi.domain.user.User;
+import com.example.partnersapi.domain.user.*;
 import com.example.partnersapi.infra.security.TokenService;
 import com.example.partnersapi.repositories.UserRepository;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,10 +27,12 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody @Valid AutenticationRequestDTO data){
-        var token = new UsernamePasswordAuthenticationToken(data.email(), data.password());
-        var authentication = this.authenticationManager.authenticate(token);
+        var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.password());
+        var authentication = this.authenticationManager.authenticate(usernamePassword);
 
-        return ResponseEntity.ok(tokenService.generateToken((User) authentication.getPrincipal()));
+        var token = tokenService.generateToken((User) authentication.getPrincipal());
+
+        return ResponseEntity.ok(new AuthenticationResponseDTO(token));
     }
 
     @PostMapping("/register")
@@ -41,9 +40,8 @@ public class AuthController {
         if(this.repository.findByLogin(data.email()) != null) return ResponseEntity.badRequest().build();
 
         String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
-        User newUser = new User(data.email(), encryptedPassword);
+        User newUser = new User(data.email(), encryptedPassword, data.role());
         this.repository.save(newUser);
-
 
         return ResponseEntity.ok().build();
     }

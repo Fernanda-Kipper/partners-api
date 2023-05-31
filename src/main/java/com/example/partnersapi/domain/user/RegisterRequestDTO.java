@@ -1,4 +1,4 @@
 package com.example.partnersapi.domain.user;
 
-public record RegisterRequestDTO(String email, String password) {
+public record RegisterRequestDTO(String email, String password, UserRole role) {
 }
