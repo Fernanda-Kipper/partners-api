@@ -1,11 +1,14 @@
 package com.example.partnersapi.domain.partner;
 
+import com.example.partnersapi.domain.area.CoverageArea;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.*;
+
+import java.util.ArrayList;
 
 @Table(name = "partner")
 @Entity(name = "partner")
@@ -26,12 +29,31 @@ public class Partner {
 
     private MultiPolygon coverageArea;
 
-    public Partner(PartnerRequestDTO data, MultiPolygon coverageArea){
+    public Partner(PartnerRequestDTO data){
         this.tradingname = data.tradingName();
         this.ownername = data.ownerName();
         this.document = data.document();
         this.coordinatex = data.address().coordinates().get(0);
         this.coordinatey = data.address().coordinates().get(1);
-        this.coverageArea = coverageArea;
+        this.coverageArea = formatCoverageArea(data.coverageArea());
+    }
+
+    private MultiPolygon formatCoverageArea(CoverageArea coverageData){
+        ArrayList<Polygon> multiPolygons = new ArrayList<>();
+        GeometryFactory geometryFactory = new GeometryFactory();
+
+        coverageData.coordinates().forEach(polygons -> polygons.forEach(points -> {
+            Coordinate[] polygonCoords = new Coordinate[points.size()];
+            for (int i = 0; i < points.size(); i++) {
+                ArrayList<Float> coord = points.get(i);
+                polygonCoords[i] = new Coordinate(coord.get(0), coord.get(1));
+            }
+            LinearRing shell = geometryFactory.createLinearRing(polygonCoords);
+            multiPolygons.add(geometryFactory.createPolygon(shell));
+        }));
+
+        MultiPolygon coverageArea = geometryFactory.createMultiPolygon(multiPolygons.toArray(new Polygon[0]));
+
+        return coverageArea;
     }
 }

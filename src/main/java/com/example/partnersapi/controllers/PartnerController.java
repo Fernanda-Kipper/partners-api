@@ -24,25 +24,8 @@ public class PartnerController {
     PartnerRepository repository;
     @PostMapping
     public ResponseEntity postPartner(@RequestBody @Valid PartnerRequestDTO data, UriComponentsBuilder UriBuilder){
-        ArrayList<Polygon> multiPolygons = new ArrayList<>();
-        GeometryFactory geometryFactory = new GeometryFactory();
-
-        data.coverageArea().coordinates().forEach(polygons -> polygons.forEach(points -> {
-            Coordinate[] polygonCoords = new Coordinate[points.size()];
-            for (int i = 0; i < points.size(); i++) {
-                ArrayList<Float> coord = points.get(i);
-                polygonCoords[i] = new Coordinate(coord.get(0), coord.get(1));
-            }
-            LinearRing shell = geometryFactory.createLinearRing(polygonCoords);
-            multiPolygons.add(geometryFactory.createPolygon(shell));
-        }));
-
-        MultiPolygon coverageArea = geometryFactory.createMultiPolygon(multiPolygons.toArray(new Polygon[0]));
-
-        Partner newPartner = new Partner(data, coverageArea);
-
+        Partner newPartner = new Partner(data);
         this.repository.save(newPartner);
-
         var uri = UriBuilder.path("/partner/{id}").buildAndExpand(newPartner.getId()).toUri();
 
         return ResponseEntity.created(uri).body(newPartner);
