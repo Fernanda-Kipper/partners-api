@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 
-public record Address (
+public record AddressDTO(
         @NotNull
         String type,
         @NotEmpty

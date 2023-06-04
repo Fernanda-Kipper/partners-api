@@ -1,6 +1,6 @@
 package com.example.partnersapi.domain.partner;
 
-import com.example.partnersapi.domain.area.CoverageArea;
+import com.example.partnersapi.domain.area.CoverageAreaDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -38,7 +38,7 @@ public class Partner {
         this.coverageArea = formatCoverageArea(data.coverageArea());
     }
 
-    private MultiPolygon formatCoverageArea(CoverageArea coverageData){
+    private MultiPolygon formatCoverageArea(CoverageAreaDTO coverageData){
         ArrayList<Polygon> multiPolygons = new ArrayList<>();
         GeometryFactory geometryFactory = new GeometryFactory();
 
