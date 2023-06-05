@@ -6,12 +6,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class GoogleMapsService implements AddressService {
@@ -22,9 +23,8 @@ public class GoogleMapsService implements AddressService {
     @Value("${api.googlemaps.uri}")
     private String mapsUri;
     public String getCompleteAddress(UriComponentsBuilder uriBuilder, AddressDTO address) throws URISyntaxException {
-        System.out.println("chegou aqui");
-        System.out.println(this.mapsUri + this.googleToken);
-        String latlng = address.coordinates().get(0).toString() + "," + address.coordinates().get(1).toString();
+        UncheckedObjectMapper uncheckedObjectMapper = new UncheckedObjectMapper();
+        String latlng = address.coordinates().get(1).toString() + "," + address.coordinates().get(0).toString();
         URI uri = uriBuilder.fromUriString(this.mapsUri)
                 .queryParam("latlng", latlng)
                 .queryParam("sensor", true)
@@ -37,15 +37,19 @@ public class GoogleMapsService implements AddressService {
                 .method("GET", HttpRequest.BodyPublishers.noBody())
                 .build();
 
-        HttpResponse<String> response = null;
+        GoogleApiResponse response = null;
         try {
-            response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException e) {
-            e.printStackTrace();
+            response = HttpClient.newHttpClient()
+                    .sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                    .thenApply(HttpResponse::body)
+                    .thenApply(uncheckedObjectMapper::readValue)
+                    .get();
+            System.out.println(response);
         } catch (InterruptedException e) {
             e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
         }
-        System.out.println(response.body());
-        return response.body();
+        return response.results().get(0).formattedAddress();
     }
 }
