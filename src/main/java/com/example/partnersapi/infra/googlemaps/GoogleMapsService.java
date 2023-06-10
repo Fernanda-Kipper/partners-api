@@ -7,8 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -54,9 +52,15 @@ public class GoogleMapsService implements AddressService {
     }
 
     public String getCityFromCompleteAddress(String completeAddress) {
-        var addressParts = completeAddress.split(",", 4);
+        var addressParts = completeAddress.split(",", 5);
         var cityAndState = addressParts[2].split("-");
-        var city =  cityAndState[0];
+        var city = cityAndState[0];
         return city;
+    }
+
+    public String getCountryFromCompleteAddress(String completeAddress) {
+        var addressParts = completeAddress.split(",", 5);
+        var country = addressParts[addressParts.length - 1];
+        return country;
     }
 }

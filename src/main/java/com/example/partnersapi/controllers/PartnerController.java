@@ -31,8 +31,9 @@ public class PartnerController {
     public ResponseEntity postPartner(@RequestBody @Valid PartnerRequestDTO data, UriComponentsBuilder UriBuilder) {
         String completeAddress = addressService.getCompleteAddress(UriBuilder, data.address());
         String city = addressService.getCityFromCompleteAddress(completeAddress);
+        String country = addressService.getCountryFromCompleteAddress(completeAddress);
 
-        Partner newPartner = new Partner(data);
+        Partner newPartner = new Partner(data, city, country);
         this.repository.save(newPartner);
         PartnerResponseDTO response = new PartnerResponseDTO(newPartner);
 

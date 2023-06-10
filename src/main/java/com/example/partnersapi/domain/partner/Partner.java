@@ -24,18 +24,22 @@ public class Partner {
     private String document;
     private Float coordinatex;
     private Float coordinatey;
+    private String city;
+    private String country;
 
     @Column(name = "coveragearea", columnDefinition = "geometry")
 
     private MultiPolygon coverageArea;
 
-    public Partner(PartnerRequestDTO data){
+    public Partner(PartnerRequestDTO data, String city, String country){
         this.tradingname = data.tradingName();
         this.ownername = data.ownerName();
         this.document = data.document();
         this.coordinatex = data.address().coordinates().get(0);
         this.coordinatey = data.address().coordinates().get(1);
         this.coverageArea = formatCoverageArea(data.coverageArea());
+        this.city = city;
+        this.country = country;
     }
 
     private MultiPolygon formatCoverageArea(CoverageAreaDTO coverageData){
