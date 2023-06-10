@@ -14,7 +14,7 @@ public class ControllersExceptionHandler {
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ExceptionDTO> threatBadRequest(BadRequestException exception){
-        ExceptionDTO response = new ExceptionDTO(exception.message, 400);
+        ExceptionDTO response = new ExceptionDTO(exception.getMessage(), 400);
         return ResponseEntity.badRequest().body(response);
     }
 
