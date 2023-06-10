@@ -22,7 +22,7 @@ public class GoogleMapsService implements AddressService {
 
     @Value("${api.googlemaps.uri}")
     private String mapsUri;
-    public String getCompleteAddress(UriComponentsBuilder uriBuilder, AddressDTO address) throws URISyntaxException {
+    public String getCompleteAddress(UriComponentsBuilder uriBuilder, AddressDTO address) {
         UncheckedObjectMapper uncheckedObjectMapper = new UncheckedObjectMapper();
         String latlng = address.coordinates().get(1).toString() + "," + address.coordinates().get(0).toString();
         URI uri = uriBuilder.fromUriString(this.mapsUri)
@@ -51,5 +51,12 @@ public class GoogleMapsService implements AddressService {
             e.printStackTrace();
         }
         return response.results().get(0).formattedAddress();
+    }
+
+    public String getCityFromCompleteAddress(String completeAddress) {
+        var addressParts = completeAddress.split(",", 4);
+        var cityAndState = addressParts[2].split("-");
+        var city =  cityAndState[0];
+        return city;
     }
 }
