@@ -2,6 +2,7 @@ package com.example.partnersapi.infra.googlemaps;
 
 import com.example.partnersapi.domain.address.AddressDTO;
 import com.example.partnersapi.domain.address.AddressService;
+import com.example.partnersapi.infra.exceptions.BadRequestException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -20,9 +21,12 @@ public class GoogleMapsService implements AddressService {
 
     @Value("${api.googlemaps.uri}")
     private String mapsUri;
-    public String getCompleteAddress(UriComponentsBuilder uriBuilder, AddressDTO address) {
+    public String getCompleteAddress(UriComponentsBuilder uriBuilder, AddressDTO address) throws RuntimeException {
         UncheckedObjectMapper uncheckedObjectMapper = new UncheckedObjectMapper();
-        String latlng = address.coordinates().get(1).toString() + "," + address.coordinates().get(0).toString();
+        var latitude = address.coordinates().get(1).toString();
+        var longitude = address.coordinates().get(0).toString();
+        String latlng = latitude + "," + longitude;
+
         URI uri = uriBuilder.fromUriString(this.mapsUri)
                 .queryParam("latlng", latlng)
                 .queryParam("sensor", true)
@@ -44,18 +48,22 @@ public class GoogleMapsService implements AddressService {
                     .get();
             System.out.println(response);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            throw new RuntimeException();
         } catch (ExecutionException e) {
-            e.printStackTrace();
+            throw new RuntimeException();
         }
         return response.results().get(0).formattedAddress();
     }
 
-    public String getCityFromCompleteAddress(String completeAddress) {
-        var addressParts = completeAddress.split(",", 5);
-        var cityAndState = addressParts[2].split("-");
-        var city = cityAndState[0];
-        return city;
+    public String getCityFromCompleteAddress(String completeAddress) throws BadRequestException {
+        try {
+            var addressParts = completeAddress.split(",", 5);
+            var cityAndState = addressParts[2].split("-");
+            var city = cityAndState[0];
+            return city;
+        } catch (RuntimeException exception){
+            throw new BadRequestException("Address provided is invalid");
+        }
     }
 
     public String getCountryFromCompleteAddress(String completeAddress) {

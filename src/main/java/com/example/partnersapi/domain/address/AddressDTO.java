@@ -10,4 +10,5 @@ public record AddressDTO(
         String type,
         @NotEmpty
         ArrayList<Float> coordinates
+        /* X, Y = Long - Lat */
 ){};
